@@ -82,7 +82,7 @@ void citireDirectorScriereFisier(const char *filename, const char *dirpath)
             exit(-1);
         }
 
-        // Verificam daca este un fisier bmp sau fisier normal
+         // Verificam daca este un fisier bmp sau fisier normal
         if (S_ISREG(stat_data.st_mode))
         {
             // Incep sa scriu datele necesare in fisier
@@ -98,7 +98,6 @@ void citireDirectorScriereFisier(const char *filename, const char *dirpath)
                 read(fd, &inaltime, SIZE);
                 sprintf(text, "Inaltimea fisierului BMP este : %d\n", inaltime);
                 write(scriere, text, strlen(text));
-
                 // Setez indicatorul pentru a citi lungimea fisierului
                 lseek(fd, 22, SEEK_SET);
                 read(fd, &lungime, SIZE);
@@ -106,63 +105,30 @@ void citireDirectorScriereFisier(const char *filename, const char *dirpath)
                 write(scriere, text, strlen(text));
             }
 
-            // Scriem in fisierul creat dimensiunea fisieruli
-            sprintf(text, "Dimensiunea fisierului este : %ld\n", stat_data.st_size);
+            // Scriem in fisierul creat dimensiunea fisieruli,identificatorul utilizatorului (user id),timpul ultimei modificari,controlul de legaturi
+            sprintf(text, "Dimensiunea fisierului este : %ld\nIdentificatorul utilizatorului fisierului este : %d\nTimpul ultimei modificari fisierului este : %sControul de legaturi a fisierului este : %ld\n", stat_data.st_size, stat_data.st_uid, ctime(&stat_data.st_mtime), stat_data.st_nlink);
             write(scriere, text, strlen(text));
 
-            // Scriem identificatorul utilizatorului (user id)
-            sprintf(text, "Identificatorul utilizatorului fisierului este : %d\n", stat_data.st_uid);
-            write(scriere, text, strlen(text));
-
-            // Scriem timpul ultimei modificari
-            sprintf(text, "Timpul ultimei modificari fisierului este : %s", ctime(&stat_data.st_mtime));
-            write(scriere, text, strlen(text));
-
-            // Scriem in fisier controlul de legaturi
-            sprintf(text, "Controul de legaturi a fisierului este : %ld\n", stat_data.st_nlink);
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces user
+            // Scriem drepurile de acces user,grup si altii
             mode_t userPermissions = stat_data.st_mode & S_IRWXU;
-            sprintf(text, "Drepurile de acces ale user-ului fisierului sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces grup
             mode_t groupPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale grupuli in fisierul sunt : %c%c%c\n", (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepturi de acces altii
             mode_t othersPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale altora in fisierul sunt : %c%c%c\n", (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
+            sprintf(text, "Drepurile de acces ale user-ului fisierului sunt : %c%c%c\nDrepurile de acces ale grupuli in fisierul sunt : %c%c%c\nDrepurile de acces ale altora in fisierul sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-', (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-', (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
             write(scriere, text, strlen(text));
         }
 
         // Verificam daca este legatura simbolica ce indica sper un fisier obisnuit
         if (S_ISLNK(stat_data.st_mode))
         {
-            // Scriem numele
-            sprintf(text, "Nume fisier : %s\n", entry->d_name);
-            printf("%ld\n", strlen(text));
+            // Scriem nume si dimeniunea legaturii
+            sprintf(text, "Nume fisier : %s\nDimensiune legatura : %ld\n", entry->d_name, stat_data.st_size);
             write(scriere, text, strlen(text));
 
-            // Scriem dimeniunea legaturii
-            sprintf(text, "Dimensiune legatura : %ld\n", stat_data.st_size);
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces user
+            // Scriem drepurile de acces user,grup si altii
             mode_t userPermissions = stat_data.st_mode & S_IRWXU;
-            sprintf(text, "Drepurile de acces ale user-ului fisierului BMP sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces grup
             mode_t groupPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale grupuli in fisierul BMP sunt : %c%c%c\n", (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepturi de acces altii
             mode_t othersPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale altora in fisierul BMP sunt : %c%c%c\n", (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
+            sprintf(text, "Drepurile de acces ale user-ului fisierului sunt : %c%c%c\nDrepurile de acces ale grupuli in fisierul sunt : %c%c%c\nDrepurile de acces ale altora in fisierul sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-', (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-', (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
             write(scriere, text, strlen(text));
 
             // Folosind fstat preluam dimeniunea fisierului target si o sriem
@@ -178,28 +144,14 @@ void citireDirectorScriereFisier(const char *filename, const char *dirpath)
         // Verificam daca este director
         if (S_ISDIR(stat_data.st_mode))
         {
-            // Scriem numele
-            sprintf(text, "Nume director : %s\n", entry->d_name);
-            printf("%ld\n", strlen(text));
+            // Scriem numele si identificatorul utilizatorului(user id)
+            sprintf(text, "Nume director : %s\nIdentificatorul utilizatorului fisierului este : %d\n", entry->d_name, stat_data.st_uid);
             write(scriere, text, strlen(text));
-
-            // Scriem identificatorul utilizatorului(user id)
-            sprintf(text, "Identificatorul utilizatorului fisierului BMP este : %d\n", stat_data.st_uid);
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces user
+            // Scriem drepurile de acces user,grup si altii
             mode_t userPermissions = stat_data.st_mode & S_IRWXU;
-            sprintf(text, "Drepurile de acces ale user-ului fisierului BMP sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepurile de acces grup
             mode_t groupPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale grupuli in fisierul BMP sunt : %c%c%c\n", (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-');
-            write(scriere, text, strlen(text));
-
-            // Scriem drepturi de acces altii
             mode_t othersPermissions = stat_data.st_mode & S_IRGRP;
-            sprintf(text, "Drepurile de acces ale altora in fisierul BMP sunt : %c%c%c\n", (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
+            sprintf(text, "Drepurile de acces ale user-ului fisierului sunt : %c%c%c\nDrepurile de acces ale grupuli in fisierul sunt : %c%c%c\nDrepurile de acces ale altora in fisierul sunt : %c%c%c\n", (userPermissions & S_IRUSR) ? 'R' : '-', (userPermissions & S_IWUSR) ? 'W' : '-', (userPermissions & S_IXUSR) ? 'X' : '-', (groupPermissions & S_IRGRP) ? 'R' : '-', (groupPermissions & S_IWGRP) ? 'W' : '-', (groupPermissions & S_IXGRP) ? 'X' : '-', (othersPermissions & S_IROTH) ? 'R' : '-', (othersPermissions & S_IWOTH) ? 'W' : '-', (othersPermissions & S_IXOTH) ? 'X' : '-');
             write(scriere, text, strlen(text));
         }
         // Inchidem dupa ficare iteratie fisierul deschid pentru preluarea datelor
