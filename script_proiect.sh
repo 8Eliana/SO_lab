@@ -24,7 +24,7 @@ if [ "$#" -eq 1 ];
 
     while IFS= read -r line; 
       do
-        if echo "$line" | grep -E "^[A-Z][a-zA-Z0-9\ \.\,!?-]+[\.!?]$" | grep -vE "(si[\ ]*,)" | grep -v "n[pb]" ;
+        if echo "$line" | grep -E "^[A-Z][a-zA-Z0-9\ \.\,!?-]+[\.!?]$" | grep -vE "(si[\ ]*,)" | grep -v "n[pb]">/dev/null;
          then
             if [[ $line == *"$caracter"* ]]; then
                 ((count++))
